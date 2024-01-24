@@ -18,17 +18,30 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+
 // Public Routes
 Route::controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
-});
-
-// Protected Routes
-Route::middleware('auth:api')->group(function () {
-    Route::get('/users', [UsersContoller::class, 'GetUsers']);
-    Route::get('/logout', [AuthController::class, 'logout']);
+    Route::post('/passowrd', 'sendResetLink');
+    Route::post('/reset-password', 'reset');
 });
 
 Route::get('/login-google', [socialAuthController::class, 'redirectToProvider']);
 Route::get('/auth/google/callback', [socialAuthController::class, 'handleCallback']);
+
+// Protected Routes
+Route::middleware('auth:api')->group(function () {
+    // Users
+    Route::get('/user', [UsersContoller::class, 'authUser']);
+    Route::middleware('checkEditor')->controller(UsersContoller::class)->group(function () {
+        Route::get('/users', 'GetUsers');
+        Route::get('/user/{id}', 'getUser');
+        Route::post('/user/edit/{id}', 'editUser');
+        Route::post('/user/add', 'addUser');
+        Route::delete('/user/{id}', 'destroy');
+    });
+
+    // Auth
+    Route::get('/logout', [AuthController::class, 'logout']);
+});
