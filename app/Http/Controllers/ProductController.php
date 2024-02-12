@@ -14,9 +14,9 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Product::with('Images')->where('status', '=', 'published')->get();
+        return Product::with('Images')->where('status', '=', 'published')->paginate($request->input('limit', 10));
     }
 
     /**
@@ -108,6 +108,15 @@ class ProductController extends Controller
             }
         }
     }
+
+     // Search On Users
+     public function search(Request $request)
+     {
+            $query = $request->input('title');
+            $results = Product::with('Images')->where('title', 'like', "%$query%")->get();
+            return response()->json($results);
+     }
+
 
     /**
      * Remove the specified resource from storage.
